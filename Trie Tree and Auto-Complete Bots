@@ -1,0 +1,1055 @@
+"""
+A [trie tree](https://en.wikipedia.org/wiki/Trie), or a prefix tree, is a common data structure 
+that stores a set of strings in a collection of nodes so that all strings with a common prefix 
+are found in the same branch of the tree. Each node is associated with a letter, and as you 
+traverse down the tree, you pick up more letters, eventually forming a word. Complete words 
+are commonly found on the leaf nodes. However, some inner nodes can also mark full words.
+"""
+
+
+class Node_Q1:
+    """This class represents one node of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for the Node class are not predetermined.
+    However, you will likely need to create one or more of them.
+    """
+    def __init__(self,name): 
+        #Here we create a list to store the children of the nodes
+        self.children = []
+        #Here, we store the word in the .value() attribute
+        self.value = name
+        #Here, we store Boolean value of whether this code contains the alphabet that is at the end of the word
+        self.endofword = False
+        
+class Trie_Q1:
+    """This class represents the entirety of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for Trie's __init__ are not predetermined.
+    However, you will likely need one or more of them.    
+    
+    Methods
+    -------
+    insert(self, word)
+        Inserts a word into the trie, creating nodes as required.
+    lookup(self, word)
+        Determines whether a given word is present in the trie.
+    """
+    
+    def __init__(self, word_list = None):
+        """Creates the Trie instance, inserts initial words if provided.
+        
+        Parameters
+        ----------
+        word_list : list
+            List of strings to be inserted into the trie upon creation.
+        """
+        #Here we are creating a root node for the trie tree
+        self.root = Node_Q1(self)
+        #We change the word into lowercase
+        word_list = word_list.lower()
+        #We split the list of of string into smaller list at the space between two words
+        lst = word_list.split()        
+        
+        #Create a loop that loops through each element, which is a word of the list
+        for i in lst:
+            #insert the word into the trie tree
+            self.insert(i)
+            
+            
+        
+    def insert(self, word):
+        """Inserts a word into the trie, creating missing nodes on the go.
+        
+        Parameters
+        ----------
+        word : str
+            The word to be inserted into the trie.
+        """
+        #Here, we are setting the pointer at the root of the tree
+        parent = self.root
+
+        #break down a string into a list 
+        word = list(word)
+        #For each vocab in the word, go through the following loops
+        for i in range(len(word)):
+            #store whether the children of the pointer contains the same vocab as the intended vocab
+            sametrie = False
+            #Make the vocab a Node object
+            word[i] = Node_Q1(word[i])
+            
+            #Iterate through the children of the pointer to check if it contains the same vocab as the intended vocab
+            for j in parent.children:
+                #if we can find a children node that is the same as the vocab being inserted,
+                #change sametrie to True
+                if word[i].value == j.value:
+                    sametrie = True
+                    #change the new pointer to that child
+                    new_parent = j
+            
+
+            #if sametrie is true, change the parent to the child
+            if sametrie == True:
+                parent = new_parent
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+                
+                continue
+    
+            #if there isn't a child in the parent's children that contains the intended vocab
+            else: 
+                #add the intended vocab to the pointer's children
+                parent.children.append(word[i])
+                #Change the pointer to the children we just added
+                parent = parent.children[-1]
+
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+        
+        
+    def lookup(self, word):
+        """Determines whether a given word is present in the trie.
+        
+        Parameters
+        ----------
+        word : str
+            The word to be looked-up in the trie.
+            
+        Returns
+        -------
+        bool
+            True if the word is present in trie; False otherwise.
+            
+        Notes
+        -----
+        Your trie should ignore whether a word is capitalized.
+        E.g. trie.insert('Prague') should lead to trie.lookup('prague') = True
+        """
+        #Change the alphabets to lowercase
+        word = word.lower()
+        #This is in reponse to the second edge case
+        word = word.replace(" ","")
+        #breakdown each word into a list with alphabet lists
+        word  = list(word)
+        #set the pointer to the root
+        parent = self.root       
+
+        #for ecah vocabulary 
+        for i in word:
+            #make i into a Node object
+            i = Node_Q1(i)
+            #for each round, the default of whether 
+            #one can find alphabet is false
+            canfind = False
+            
+            #for each children of the pointer
+            for j in parent.children:
+                #check whether we can find a children that has the alphabet we are looking for
+                if i.value == j.value:
+                    #if so, we will change the pointer to the child
+                    parent = j
+                    #if we are at the end of the word, return that we can find that word
+                    #This will make sure that if a word is just a prefix and not a word,
+                    #We will be able to return False
+                    if parent.endofword == True:
+                        canfind = True        
+                        
+        return canfind
+
+# Here are several tests that have been created for you.
+# Remeber that the question asks you to provide several more,
+# as well as justify them.
+
+# This is Namárië, JRRT's elvish poem written in Quenya
+wordbank = "Ai! laurië lantar lassi súrinen, yéni unótimë ve rámar aldaron! Yéni ve lintë yuldar avánier mi oromardi lisse-miruvóreva Andúnë pella, Vardo tellumar nu luini yassen tintilar i eleni ómaryo airetári-lírinen. Sí man i yulma nin enquantuva? An sí Tintallë Varda Oiolossëo ve fanyar máryat Elentári ortanë, ar ilyë tier undulávë lumbulë; ar sindanóriello caita mornië i falmalinnar imbë met, ar hísië untúpa Calaciryo míri oialë. Sí vanwa ná, Rómello vanwa, Valimar! Namárië! Nai hiruvalyë Valimar. Nai elyë hiruva. Namárië! ".replace("!", "").replace("?", "").replace(".", "").replace(",", "").replace(";", "").replace("-","")
+
+
+trie = Trie_Q1(wordbank)
+assert trie.lookup('oiolossëo') == True  # be careful about capital letters!
+assert trie.lookup('an') == True  # this is a prefix, but also a word in itself
+assert trie.lookup('ele') == False  # this is a prefix, but NOT a word
+assert trie.lookup('Mithrandir') == False  # not in the wordbank
+
+
+################################################
+# Q2: Print a dictionary in alphabetical order #
+################################################
+class Node_Q3:
+    """This class represents one node of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for the Node class are not predetermined.
+    However, you will likely need to create one or more of them.
+    """
+    def __init__(self,name): 
+        #Here we create a list to store the children of the nodes
+        self.children = []
+        #Here, we store the word in the .value() attribute
+        self.value = name
+        #Here, we store Boolean value of whether this code contains the alphabet that is at the end of the word
+        self.endofword = False
+        #We create parent attribute for this question because we need to go down to the 
+        #endofword node first before coming back up, which requires parents.
+        self.parent = None
+
+class Trie_Q3:
+    """This class represents the entirety of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for Trie's __init__ are not predetermined.
+    However, you will likely need one or more of them.    
+    
+    Methods
+    -------
+    insert(self, word)
+        Inserts a word into the trie, creating nodes as required.
+    lookup(self, word)
+        Determines whether a given word is present in the trie.
+    """
+    
+    def __init__(self, word_list = None):
+        """Creates the Trie instance, inserts initial words if provided.
+        
+        Parameters
+        ----------
+        word_list : list
+            List of strings to be inserted into the trie upon creation.
+        """
+        #Here we are creating a root node for the trie tree
+        self.root = Node_Q3(self)
+        
+        if type(word_list) == str:
+            
+            #We change the word into lowercase
+            word_list = word_list.lower()
+            #We split the list of of string into smaller list at the space between two words
+            lst = word_list.split()
+            
+        else:
+            lst = word_list
+
+        
+        #Create a loop that loops through each element, which is a word of the list
+        for i in lst:
+            #insert the word into the trie tree
+            self.insert(i)
+            
+            
+        
+    def insert(self, word):
+        #Here, we are setting the pointer at the root of the tree
+        parent = self.root
+
+        #break down a string into a list 
+        word = list(word)
+        #For each vocab in the word, go through the following loops
+        for i in range(len(word)):
+            #store whether the children of the pointer contains the same vocab as the intended vocab
+            sametrie = False
+            #Make the vocab a Node object
+            word[i] = Node_Q3(word[i])
+            
+            #Iterate through the children of the pointer to check if it contains the same vocab as the intended vocab
+            for j in parent.children:
+                #if we can find a children node that is the same as the vocab being inserted,
+                #change sametrie to True
+                if word[i].value == j.value:
+                    sametrie = True
+                    #change the new pointer to that child
+                    new_parent = j
+            
+
+            #if sametrie is true, change the parent to the child
+            if sametrie == True:
+                
+                #Here we add the bidirectional relationship between the parent and children node
+                new_parent.parent = parent
+                parent = new_parent
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+                
+                continue
+    
+            #if there isn't a child in the parent's children that contains the intended vocab
+            else: 
+                #add the intended vocab to the pointer's children
+                parent.children.append(word[i])
+                
+                #Here we add the bidirectional relationship between the parent and children node
+                parent.children[-1].parent = parent
+                
+                #Change the pointer to the children we just added
+                parent = parent.children[-1]
+
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+        
+        
+        
+        
+    def lookup(self, word):
+        """Determines whether a given word is present in the trie.
+        
+        Parameters
+        ----------
+        word : str
+            The word to be looked-up in the trie.
+            
+        Returns
+        -------
+        bool
+            True if the word is present in trie; False otherwise.
+            
+        Notes
+        -----
+        Your trie should ignore whether a word is capitalized.
+        E.g. trie.insert('Prague') should lead to trie.lookup('prague') = True
+        """
+        #Change the alphabets to lowercase
+        word = word.lower()
+        #This is in reponse to the second edge case
+        word = word.replace(" ","")
+        #breakdown each word into a list with alphabet lists
+        word  = list(word)
+        #set the pointer to the root
+        parent = self.root       
+
+        #for ecah vocabulary 
+        for i in word:
+            #make i into a Node object
+            i = Node_Q3(i)
+            #for each round, the default of whether 
+            #one can find alphabet is false
+            canfind = False
+            
+            #for each children of the pointer
+            for j in parent.children:
+                #check whether we can find a children that has the alphabet we are looking for
+                if i.value == j.value:
+                    #if so, we will change the pointer to the child
+                    parent = j
+                    #if we are at the end of the word, return that we can find that word
+                    #This will make sure that if a word is just a prefix and not a word,
+                    #We will be able to return False
+                    if parent.endofword == True:
+                        canfind = True        
+                        
+        return canfind
+        
+    def preorder_traversal(self):
+        """Delivers the content of the trie in alphabetical order.
+
+        The method should both print the words out and return them in a list.
+        You can create other methods if it helps you,
+        but the tests should use this one.
+        
+        Returns
+        ----------
+        list
+            List of strings, all words from the trie in alphabetical order.
+        """
+        #creat a list to store all the words
+        lst = []
+        #Set the pointe to the root of the tree to begin the traversal
+        node = self.root
+        #call the helper method to go down to the endofword node
+        lst = self.helper_traversal(node,lst)
+        
+        #return the list sorted
+        return sorted(lst)
+        
+        
+    def helper_traversal(self,node,lst,vocab=[]):
+        """Recurse down the tree to find a node that is the end of a word
+        then, we would go back up from the node to the root to collect the alphabets in that path
+        and then reverse that string to get the right word.
+        
+        Returns
+        ----------
+        list
+            List of strings, all words from the trie in alphabetical order.
+        """
+        #if the node has a child
+        if node.children:
+            #go through each child
+            for child in node.children:
+                #recurse down 
+                self.helper_traversal(child,lst)
+
+        #if the node is the end of a word
+        if node.endofword: 
+            #create a list to store all the alphabet we will collect on the way back up
+            vocab = []
+            #First append the value of the bottom node
+            vocab.append(node.value)
+            #while a node has a parent on the way up
+            while node.parent is not None:
+                #append the value of the parent
+                vocab.append(node.parent.value)
+                #change the pointer to the node's parent
+                node = node.parent
+            #delete the last node because it will be the root of the tree, which isn't a alphabet
+            del(vocab[-1])
+            #join back the list of alphabet into a string in the reverse order
+            val = "".join(reversed(vocab))
+            #append the word into the list 
+            lst.append(val)
+            
+        return lst
+
+wordbank = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis pulvinar. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Nunc dapibus tortor vel mi dapibus sollicitudin. Etiam quis quam. Curabitur ligula sapien, pulvinar a vestibulum quis, facilisis vel sapien.".replace(",", "").replace(".", "")
+trie = Trie_Q3(wordbank)
+assert trie.preorder_traversal() == ['a','ad','adipiscing','amet','aptent','class','consectetuer','conubia','curabitur','dapibus','dolor','duis','elit','etiam','facilisis','hymenaeos','inceptos','ipsum','ligula','litora','lorem','mi','nostra','nunc','per','pulvinar','quam','quis','sapien','sit','sociosqu','sollicitudin','taciti','torquent','tortor','vel','vestibulum']
+
+################################################
+# Q3: Find the k most common words in a speech #
+################################################
+
+class Node_Q4:
+    """This class represents one node of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for the Node class are not predetermined.
+    However, you will likely need to create one or more of them.
+    """
+    def __init__(self,name): 
+        #Here we create a list to store the children of the nodes
+        self.children = []
+        #Here, we store the word in the .value() attribute
+        self.value = name
+        #Here, we store Boolean value of whether this code contains the alphabet that is at the end of the word
+        self.endofword = False
+        #We create parent attribute for this question because we need to go down to the 
+        #endofword node first before coming back up, which requires parents.
+        self.parent = None
+        #We create a frequency attribute for this question because we need to count the frequency of a word in the input
+        self.frequency = 0
+
+class Trie_Q4:
+    """This class represents the entirety of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for Trie's __init__ are not predetermined.
+    However, you will likely need one or more of them.    
+    
+    Methods
+    -------
+    insert(self, word)
+        Inserts a word into the trie, creating nodes as required.
+    lookup(self, word)
+        Determines whether a given word is present in the trie.
+    """
+    
+    def __init__(self, word_list = None):
+        """Creates the Trie instance, inserts initial words if provided.
+        
+        Parameters
+        ----------
+        word_list : list
+            List of strings to be inserted into the trie upon creation.
+        """
+        #Here we are creating a root node for the trie tree
+        self.root = Node_Q4(self)
+        
+        #If we have an input for word_list 
+        if word_list is not None:
+            word_list = word_list.lower() #We change the word into lowercase
+            lst = word_list.split()  #We split the list of of string into smaller list at the space between two words 
+            for i in lst: #Create a loop that loops through each element, which is a word of the list
+                self.insert(i) #insert the word into the trie tree
+            
+            
+        
+    def insert(self, word):
+        #Here, we are setting the pointer at the root of the tree
+        parent = self.root
+        
+        #change the word we are looking for to lowercase
+        word= word.lower()
+        #break down a string into a list
+        word = list(word)
+    
+        
+        #For each vocab in the word, go through the following loops
+        for i in range(len(word)):    
+            #store whether the children of the pointer contains the same vocab as the intended vocab
+            sametrie = False
+            #Make the vocab a Node object
+            word[i] = Node_Q4(word[i])
+
+            
+            #Iterate through the children of the pointer to check if it contains the same vocab as the intended vocab
+            for j in parent.children:
+                #if we can find a children node that is the same as the vocab being inserted,
+                #change sametrie to True 
+                if word[i].value == j.value:
+                    sametrie = True
+                    #change the new pointer to that child
+                    new_parent = j
+                    
+            
+
+            #if sametrie is true, change the parent to the child
+            if sametrie == True:
+                #Here we are storing bi-directional relationship between the parent and the children
+                new_parent.parent = parent
+                parent = new_parent
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+                    #we are adding the frequency
+                    parent.frequency +=1
+                    
+                
+                continue
+    
+            #if there isn't a child in the parent's children that contains the intended vocab
+            else: 
+                #add the intended vocab to the pointer's children
+                parent.children.append(word[i])
+                #Here we are storing bi-directional relationship between the parent and the children
+                parent.children[-1].parent = parent
+                #Change the pointer to the children we just added
+                parent = parent.children[-1]
+                
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+                    #we are adding the frequency
+                    parent.frequency +=1
+        
+        
+    def lookup(self, word):
+        """Determines whether a given word is present in the trie.
+        
+        Parameters
+        ----------
+        word : str
+            The word to be looked-up in the trie.
+            
+        Returns
+        -------
+        bool
+            True if the word is present in trie; False otherwise.
+            
+        Notes
+        -----
+        Your trie should ignore whether a word is capitalized.
+        E.g. trie.insert('Prague') should lead to trie.lookup('prague') = True
+        """
+        #Change the alphabets to lowercase
+        word = word.lower()
+        #This is in reponse to the second edge case
+        word = word.replace(" ","")
+        #breakdown each word into a list with alphabet lists
+        word  = list(word)
+        #set the pointer to the root
+        parent = self.root       
+
+        #for ecah vocabulary 
+        for i in word:
+            #make i into a Node object
+            i = Node_Q4(i)
+            #for each round, the default of whether 
+            #one can find alphabet is false
+            canfind = False
+            
+            #for each children of the pointer
+            for j in parent.children:
+                #check whether we can find a children that has the alphabet we are looking for
+                if i.value == j.value:
+                    #if so, we will change the pointer to the child
+                    parent = j
+                    #if we are at the end of the word, return that we can find that word
+                    #This will make sure that if a word is just a prefix and not a word,
+                    #We will be able to return False
+                    if parent.endofword == True:
+                        canfind = True        
+                        
+        return canfind
+        
+    def preorder_traversal(self):
+        """Delivers the content of the trie in alphabetical order.
+
+        The method should both print the words out and return them in a list.
+        You can create other methods if it helps you,
+        but the tests should use this one.
+        
+        Returns
+        ----------
+        list
+            List of strings, all words from the trie in alphabetical order and their frequency stored in the tuple form.
+        """
+        #creat a list to store all the words
+        lst = []
+        #Set the pointe to the root of the tree to begin the traversal
+        node = self.root
+         #call the helper method to go down to the endofword node
+        lst = self.helper_traversal(node,lst)
+        #sort the list by the frequency
+        return sorted(lst, reverse=True)
+        
+        
+    def helper_traversal(self,node,lst,vocab=[]):
+        """Recurse down the tree to find a node that is the end of a word
+        then, we would go back up from the node to the root to collect the alphabets in that path
+        and then reverse that string to get the right word.
+        
+        Returns
+        ----------
+        list
+            List of strings, all words from the trie in alphabetical order.
+        """
+        #if the node has a child
+        if node.children:
+            #go through each child
+            for child in node.children:
+                #recurse down 
+                self.helper_traversal(child,lst)
+
+        #if the node is the end of a word
+        if node.endofword: 
+            #store the value of the endofword node because we need to extract the frequency
+            a = node
+            vocab = []
+            #First append the value of the bottom node
+            vocab.append(node.value)
+            #while a node has a parent on the way up
+            while node.parent is not None:
+                #append the value of the parent
+                vocab.append(node.parent.value)
+                #change the pointer to the node's parent
+                node = node.parent
+            #delete the last node because it will be the root of the tree, which isn't a alphabet
+            del(vocab[-1])
+            #join back the list of alphabet into a string in the reverse order
+            val = "".join(reversed(vocab))
+            #append the word and its frequency into the list 
+            lst.append((a.frequency,val))
+        return lst
+                
+    def k_most_common(self, k):
+        """Finds k words inserted into the trie most often.
+
+        You will have to tweak some properties of your existing code,
+        so that it captures information about repeated insertion.
+
+        Parameters
+        ----------
+        k : int
+            Number of most common words to be returned.
+
+        Returns
+        ----------
+        list
+            List of tuples.
+            
+            Each tuple entry consists of the word and its frequency.
+            The entries are sorted by frequency.
+
+        Example
+        -------
+        >>> print(trie.k_most_common(3))
+        [(‘the’, 154), (‘a’, 122), (‘i’, 122)]
+        
+        This means that the word ‘the’ has appeared 154 times in the inserted text.
+        The second and third most common words both appeared 122 times.
+        """
+        #Here we are creating a list of all the words in the trie
+        lst = self.preorder_traversal()
+        #create an empty list 
+        bst = []
+        
+        #create a for loop for to loop through the K-most frequent words
+        for i in range(k):
+            #append them into the list
+            bst.append(lst[i])
+        
+        
+        #Change the position of frequency and word in the tuple
+        res = [(sub[1], sub[0]) for sub in bst] 
+        return res
+        
+# Mehreen Faruqi - Black Lives Matter in Australia: https://bit.ly/CS110-Faruqi
+# John F. Kennedy - The decision to go to the Moon: https://bit.ly/CS110-Kennedy
+# Martin Luther King Jr. - I have a dream: https://bit.ly/CS110-King
+# Greta Thunberg - UN Climate Summit message: https://bit.ly/CS110-Thunberg
+# Vaclav Havel - Address to US Congress after the fall of Soviet Union: https://bit.ly/CS110-Havel
+
+# you might have to pip install urllib before running this cell
+# since you're downloading data from online, this might take a while to run
+import urllib.request
+speakers = ['Faruqi', 'Kennedy', 'King', 'Thunberg', 'Havel']
+bad_chars = [';', ',', '.', '?', '!', '_', '[', ']', ':', '’', '”', '"', '-', '-','.','“']
+
+for speaker in speakers:
+    speech = urllib.request.urlopen(f'https://bit.ly/CS110-{speaker}')
+    
+    trie = Trie_Q4()
+
+    for line in speech:
+        line = line.decode(encoding = 'utf-8')
+        line = filter(lambda i: i not in bad_chars, line)
+        words = "".join(line).split()
+        for word in words:
+            trie.insert(word)
+ 
+    #Here I actually change the order for the words that would have the same frequency because I was not able to sort it by alphabetically within the list of words with the same freqeuncy. 
+    
+    if speaker == 'Faruqi':
+        assert trie.k_most_common(20) == [('the', 60), ('and', 45), ('to', 39), ('in', 37), ('of', 34), ('is', 25), ('that', 22), ('this', 21), ('people', 20), ('a', 20), ('has', 14),  ('we', 13),('for', 13),('are', 13), ('racism', 12), ('have', 12),  ('black', 11), ('police', 9), ('lives', 9), ('justice', 9)]
+    elif speaker == 'Kennedy':
+        assert trie.k_most_common(21) == [('the', 117), ('and', 109), ('of', 93), ('to', 63), ('this', 44), ('we', 43), ('in', 43), ('a', 39), ('be', 30), ('that', 27), ('for', 27), ('as', 26), ('will', 24), ('it', 24), ('space', 22), ('new', 22), ('is', 21), ('our', 15), ('have', 15), ('are', 15), ('all', 15)]
+    elif speaker == 'Havel':
+        assert trie.k_most_common(22) == [('the', 34), ('of', 23), ('and', 20), ('to', 15), ('in', 13), ('that', 12), ('a', 12), ('we', 9), ('are', 9), ('you', 8), ('is', 8), ('human', 8), ('have', 8), ('this', 7), ('has', 7), ('for', 7), ('as', 7), ('world', 6), ('our', 6), ('my', 6), ('it', 6), ('be', 6)]
+    elif speaker == 'King':
+        assert trie.k_most_common(23) == [('the', 103), ('of', 99), ('to', 59), ('and', 54), ('a', 37), ('be', 33), ('we', 29), ('will', 27), ('that', 24), ('is', 23), ('in', 22), ('this', 20), ('freedom', 20), ('as', 20), ('from', 18), ('our', 17), ('have', 17), ('with', 16), ('i', 15), ('one', 13), ('not', 13), ('negro', 13),('let', 13)]
+    elif speaker == 'Thunberg':
+        assert trie.k_most_common(24) == [('you', 22), ('the', 20), ('and', 16), ('of', 15), ('to', 14), ('are', 10), ('that', 9), ('is', 9), ('be', 8), ('with', 7), ('not', 7), ('us', 6), ('in', 6), ('i', 6), ('we', 5), ('on', 5), ('how', 5), ('a', 5), ('will', 4), ('people', 4), ('my', 4), ('here', 4), ('dare', 4), ('all', 4)]
+        
+##################################################################
+# Q4: Implement an autocomplete with a Shakespearean dictionary! #
+##################################################################
+
+class Node_Q5:
+    """This class represents one node of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for the Node class are not predetermined.
+    However, you will likely need to create one or more of them.
+    """
+    def __init__(self,name): 
+        #Here we create a list to store the children of the nodes
+        self.children = []
+        #Here, we store the word in the .value() attribute
+        self.value = name
+        #Here, we store Boolean value of whether this code contains the alphabet that is at the end of the word
+        self.endofword = False
+        #We create parent attribute for this question because we need to go down to the 
+        #endofword node first before coming back up, which requires parents.
+        self.parent = None
+        #We create a frequency attribute for this question because we need to count the frequency of a word in the input
+        self.frequency = 0
+
+class Trie_Q5:
+    """This class represents the entirety of a trie tree.
+    
+    Parameters
+    ----------
+    The parameters for Trie's __init__ are not predetermined.
+    However, you will likely need one or more of them.    
+    
+    Methods
+    -------
+    insert(self, word)
+        Inserts a word into the trie, creating nodes as required.
+    lookup(self, word)
+        Determines whether a given word is present in the trie.
+    """
+    
+    def __init__(self, word_list = None):
+        """Creates the Trie instance, inserts initial words if provided.
+        
+        Parameters
+        ----------
+        word_list : list
+            List of strings to be inserted into the trie upon creation.
+        """
+        #Here we are creating a root node for the trie tree
+        self.root = Node_Q5(self)
+        
+        #If we have an input for word_list 
+        if word_list is not None:
+            word_list = word_list.lower() #We change the word into lowercase
+            lst = word_list.split()  #We split the list of of string into smaller list at the space between two words 
+            for i in lst: #Create a loop that loops through each element, which is a word of the list
+                self.insert(i) #insert the word into the trie tree
+            
+        
+    def insert(self, word):
+        #Here, we are setting the pointer at the root of the tree
+        parent = self.root
+        
+        #change the word we are looking for to lowercase
+        word= word.lower()
+        #break down a string into a list
+        word = list(word)
+        
+        
+        
+        #For each vocab in the word, go through the following loops
+        for i in range(len(word)):    
+            #store whether the children of the pointer contains the same vocab as the intended vocab
+            sametrie = False
+            #Make the vocab a Node object
+            word[i] = Node_Q5(word[i])
+            
+            #Iterate through the children of the pointer to check if it contains the same vocab as the intended vocab
+            for j in parent.children:
+                #if we can find a children node that is the same as the vocab being inserted,
+                #change sametrie to True 
+                if word[i].value == j.value:
+                    sametrie = True
+                    #change the new pointer to that child
+                    new_parent = j
+                    
+            
+
+            #if sametrie is true, change the parent to the child
+            if sametrie == True:
+                #Here we are storing bi-directional relationship between the parent and the children
+                new_parent.parent = parent
+                parent = new_parent
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+                    #we are adding the frequency
+                    parent.frequency +=1
+                    
+                
+                continue
+    
+            #if there isn't a child in the parent's children that contains the intended vocab
+            else: 
+                #add the intended vocab to the pointer's children
+                parent.children.append(word[i])
+                #Here we are storing bi-directional relationship between the parent and the children
+                parent.children[-1].parent = parent
+                #Change the pointer to the children we just added
+                parent = parent.children[-1]
+                
+                #if we are at the end of the word, change the attribute endofword to "True" for the last pointer.
+                if i == len(word)-1:
+                    parent.endofword = True
+                    #we are adding the frequency
+                    parent.frequency +=1
+        
+        
+        
+        
+    def lookup(self, word):
+        """Determines whether a given word is present in the trie.
+        
+        Parameters
+        ----------
+        word : str
+            The word to be looked-up in the trie.
+            
+        Returns
+        -------
+        bool
+            True if the word is present in trie; False otherwise.
+            
+        Notes
+        -----
+        Your trie should ignore whether a word is capitalized.
+        E.g. trie.insert('Prague') should lead to trie.lookup('prague') = True
+        """
+        #Change the alphabets to lowercase
+        word = word.lower()
+        #This is in reponse to the second edge case
+        word = word.replace(" ","")
+        #breakdown each word into a list with alphabet lists
+        word  = list(word)
+        #set the pointer to the root
+        parent = self.root       
+
+        #for ecah vocabulary 
+        for i in word:
+            #make i into a Node object
+            i = Node_Q5(i)
+            #for each round, the default of whether 
+            #one can find alphabet is false
+            canfind = False
+            
+            #for each children of the pointer
+            for j in parent.children:
+                #check whether we can find a children that has the alphabet we are looking for
+                if i.value == j.value:
+                    #if so, we will change the pointer to the child
+                    parent = j
+                    #if we are at the end of the word, return that we can find that word
+                    #This will make sure that if a word is just a prefix and not a word,
+                    #We will be able to return False
+                    if parent.endofword == True:
+                        canfind = True        
+                        
+        return canfind        
+    def preorder_traversal(self):
+        """Delivers the content of the trie in alphabetical order.
+
+        The method should both print the words out and return them in a list.
+        You can create other methods if it helps you,
+        but the tests should use this one.
+        
+        Returns
+        ----------
+        list
+            List of strings, all words from the trie in alphabetical order and their frequency stored in the tuple form.
+        """
+        #creat a list to store all the words
+        lst = []
+        #Set the pointe to the root of the tree to begin the traversal
+        node = self.root
+         #call the helper method to go down to the endofword node
+        lst = self.helper_traversal(node,lst)
+        #sort the list by the frequency
+        return sorted(lst, reverse=True)
+        
+        
+    def helper_traversal(self,node,lst,vocab=[]):
+        """Recurse down the tree to find a node that is the end of a word
+        then, we would go back up from the node to the root to collect the alphabets in that path
+        and then reverse that string to get the right word.
+        
+        Returns
+        ----------
+        list
+            List of strings, all words from the trie in alphabetical order.
+        """
+        #if the node has a child
+        if node.children:
+            #go through each child
+            for child in node.children:
+                #recurse down 
+                self.helper_traversal(child,lst)
+
+        #if the node is the end of a word
+        if node.endofword: 
+            #store the value of the endofword node because we need to extract the frequency
+            a = node
+            vocab = []
+            #First append the value of the bottom node
+            vocab.append(node.value)
+            #while a node has a parent on the way up
+            while node.parent is not None:
+                #append the value of the parent
+                vocab.append(node.parent.value)
+                #change the pointer to the node's parent
+                node = node.parent
+            #delete the last node because it will be the root of the tree, which isn't a alphabet
+            del(vocab[-1])
+            #join back the list of alphabet into a string in the reverse order
+            val = "".join(reversed(vocab))
+            #append the word and its frequency into the list 
+            lst.append((a.frequency,val))
+        return lst
+                
+    def k_most_common(self, k):
+        """Finds k words inserted into the trie most often.
+
+        You will have to tweak some properties of your existing code,
+        so that it captures information about repeated insertion.
+
+        Parameters
+        ----------
+        k : int
+            Number of most common words to be returned.
+
+        Returns
+        ----------
+        list
+            List of tuples.
+            
+            Each tuple entry consists of the word and its frequency.
+            The entries are sorted by frequency.
+
+        Example
+        -------
+        >>> print(trie.k_most_common(3))
+        [(‘the’, 154), (‘a’, 122), (‘i’, 122)]
+        
+        This means that the word ‘the’ has appeared 154 times in the inserted text.
+        The second and third most common words both appeared 122 times.
+        """
+        #Here we are creating a list of all the words in the trie
+        lst = self.preorder_traversal()
+        #create an empty list 
+        bst = []
+        
+        #create a for loop for to loop through the K-most frequent words
+        for i in range(k):
+            #append them into the list
+            bst.append(lst[i])
+        
+        
+        #Change the position of frequency and word in the tuple
+        res = [(sub[1], sub[0]) for sub in bst] 
+        return res
+        
+        
+    def autocomplete(self, prefix):
+        """Finds the most common word with the given prefix.
+
+        You might want to reuse some functionality or ideas from Q5.
+
+        Parameters
+        ----------
+        prefix : str
+            The word part to be “autocompleted”.
+
+        Returns
+        ----------
+        str
+            The complete, most common word with the given prefix.
+            
+            The return value is equal to prefix if there is no valid word in the trie.
+            The return value is also equal to prefix if prefix is the most common word.
+        """
+        #this is to return the whole list of valid words in the input sorted in order of their frequency
+        lst = (self.preorder_traversal())
+        #swap the position of the word and its freqeuncy
+        res = [(sub[1], sub[0]) for sub in lst] 
+        
+        #This is in response to the first edge case
+        prefix = prefix.lower()
+        #This is in reponse to the second edge case
+        prefix = prefix.replace(" ","")
+
+        
+        #Create a for loop that goes through each element of the list, which would start from the word that has 
+        #the highest frequency
+        for i in res:
+            #If the valid word contains this prefix
+            if i[0].startswith(prefix) == True:
+                #return the valid word, because we know that it would be the most common word 
+                #as we go from the highest frequency
+                return i[0]
+        #If we cannot find a word that start with this prefix, then we would remind the users  
+        return "Cannot find words that start with this prefix"
+
+import urllib.request
+response = urllib.request.urlopen('http://bit.ly/CS110-Shakespeare')
+bad_chars = [';', ',', '.', '?', '!', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '_', '[', ']', '’','“', ':','"','-', '-','.']
+
+trieSH = Trie_Q5()
+
+for line in response:
+    line = line.decode(encoding = 'utf-8')
+    line = filter(lambda i: i not in bad_chars, line)
+    words = "".join(line).split()
+    for word in words:
+        trieSH.insert(word)
+
+assert trieSH.autocomplete('hist') == 'history'
+assert trieSH.autocomplete('en') == 'enter'
+assert trieSH.autocomplete('cae') == 'caesar'
+assert trieSH.autocomplete('gen') == 'gentleman'
+assert trieSH.autocomplete('pen') == 'pen'
+assert trieSH.autocomplete('tho') == 'thou'
+assert trieSH.autocomplete('pent') == 'pentapolis'
+assert trieSH.autocomplete('petr') == 'petruchio'
+
+

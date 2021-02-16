@@ -1,0 +1,355 @@
+##############################################
+# Q1 Program an activity scheduler in Python #
+##############################################
+
+#MIN-HEAPIFY the list by its priority_score
+
+#Finding the array index of the children from its array index of the parent node
+def left(i):
+    return 2*i+1 #add one on 2*i because python starts counting at 0.
+
+def right(i):
+    return  2*i+2 #add two on 2*i because python starts counting at 0
+
+#Create a min heapify function because we intend for the priority score used in the 
+#algorithm to be small when it has higher priority 
+def min_heapify(heap, i):
+    smallest = i
+    L = left(i) 
+    R = right(i)
+    heapsize = len(heap)-1 #index number of the last element in the array
+    
+    if L <= heapsize and heap[L]['priority_score'] < heap[i]['priority_score']: 
+        #when L is equal or lower than the heapsize 
+        #and the left child is smaller than the parent
+        smallest = L #assign 'smallest' the index number of the left child
+    else: #if not
+        smallest = i #assign 'smallest' the index of the parent
+    if R <= heapsize and heap[R]['priority_score'] < heap[smallest]['priority_score']: 
+        #when L is equal or lower than the heapsize 
+        #and the right child is smaller than the current 'smallest'
+        smallest = R #assign 'smallest' the right child
+    if smallest != i: #if smallest is not the index of the parent 
+        heap[i], heap[smallest] = heap[smallest], heap[i] #swap the nodes of the smallest number and the parent
+        min_heapify(heap, smallest) #repeat the process with recursion function
+    return heap
+
+def build_min_heap(A):
+    for i in range(len(A)-1, -1, -1): #we use for loop to go through every element in the tree, starting form the bottom of the tree
+        min_heapify(A, i)
+    return A
+
+#Create a list of tasks to put into the scheduler, each entry of the task would be a dictionary to store different information 
+tasks = [{'task_id':1, 'description':' Wake up in at 9:30AM', 'task_duration':20,'dependencies': [],'status': 'NOT_STARTED_YET'}, # Defining 10 tasks using Python Lists 
+         {'task_id':2.1, 'description':'Get ready to go out - Shower', 'task_duration':15, 'dependencies':[1],'status': 'NOT_STARTED_YET'},
+         {'task_id':2.2,'description': 'Get ready to go out - Get dressed','task_duration':5, 'dependencies':[2.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':2.3,'description': 'Get ready to go out - Pack all the belongings','task_duration':5,'dependencies':[2.1,2.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':3.1,'description': 'Breakfast - walk to the breakfast place','task_duration':5,'dependencies':[2.1,2.2,2.3],'status': 'NOT_STARTED_YET'},
+         {'task_id':3.2,'description': 'Breakfast - Eating Breakfast','task_duration':20,'dependencies':[2.1,2.2,2.3,3.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':4.1,'description': 'Going to Da Dao Cheng - transportation ','task_duration':30,'dependencies':[2.1,2.2,2.3,3.1,3.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':4.2,'description': 'Going to Da Dao Cheng - looking for a herb store','task_duration':60,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':4.3,'description': 'Going to Da Dao Cheng - Buying Herbs','task_duration':40,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1,4.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':5,'description': 'Talking to Friends','task_duration':30,'dependencies':[1],'status': 'NOT_STARTED_YET'},
+         {'task_id':6,'description': 'Listening to Podcast','task_duration':30,'dependencies':[1],'status': 'NOT_STARTED_YET'},
+         {'task_id':7.1,'description': 'Temple Visit - Eating food next to the temple ','task_duration':30,'dependencies':[2.1,2.2,2.3,3.1,3.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':7.2, 'description':'Temple Visit - Go to the temple to pray for good luck','task_duration':60,'dependencies':[2.1,2.2,2.3,3.1,3.2,7.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':8.1, 'description':'Eating Stinky Tofu at the night market - Going to the night market by MRT','task_duration':40,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':8.2, 'description':'Eating Stinky Tofu at the night market - Eatin','task_duration':80,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1],'status': 'NOT_STARTED_YET'},
+
+         
+         {'task_id':9.1, 'description':'Go home and watch movie - going home','task_duration':40,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':9.2, 'description':'Go home and watch movie - Shower ','task_duration':30,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':9.3, 'description':'Go home and watch movie - watch movie ','task_duration':120,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1,9.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':10, 'description':'Get ready for bed','task_duration':20,'dependencies':[2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1,9.2,9.3],'status': 'NOT_STARTED_YET'},
+        ]
+
+
+#Add on the the priority score so that we can build a heap
+for task in tasks:
+    #if a task has more dependencies, then we assign a higher score, which would be de-prioritized.
+    #Here we are creating another element in the dictionary called dependency_priority to determine the score
+    task['dependency_priority'] = len(task['dependencies']) 
+    
+    
+    #The priority score will be determined by the dependency_priority score
+    task['priority_score'] = task['dependency_priority'] 
+    
+
+build_min_heap(tasks) #heapify my list of tasks
+
+c_time= 570 #time starts at 9:30 AM
+
+#This fucntion helps convert an integer to hour format as requested by the assignment instruction
+def integer_to_hour(time):
+    hour = time//60 
+    minute = time%60
+    
+    return ('{}H{}'.format(hour,minute))
+
+#################################
+#######Scheduler Starts!#########
+#################################
+
+
+while len(tasks) > 0:
+    #iterate on the following code to obtain the root of the min-heap so long as there is element in the heap/list
+    build_min_heap(tasks) 
+    
+    print('Simple Scheduler at time {}, executing task {}; remaining time to complete {}min'.format(integer_to_hour(c_time),tasks[0]['task_id'],tasks[0]['task_duration']))
+    #update and print the first task with its corresponding time
+    c_time += tasks[0]['task_duration'] #updated ending time in minutes
+    print('✅ Completed Task "{}" at {}'.format(tasks[0]['description'],integer_to_hour(c_time))) #print out the execution
+    print('---------------------------------------------------------------------------------------------')
+    del tasks[0] #delete the root node from the heap
+
+print("Good Night. Hope you Sleep Tight!😴")
+
+
+#################################################
+# Q3: Multitasking - How I will modify the code #
+#################################################
+
+# Q3: Multitasking - How I will modify the code:
+
+**For the input "tasks":**
+1. I will add an elment into the dictionary called "multitasking", which takes True or False as the input and "allowed-Multitasks", which takes the id of the task that can be multitasked together.
+
+This is a representation of the two dictionary entry that we will add in each dictionary of the list.
+
+id (task-subtask) | description | duration (min) | dependencies | Multitasking | allowed-multitask
+--- | --- |--- | --- |--- | --- |
+1 | Wake up in at 9:30AM |20 | none 
+2.1 | Get ready to go out - Shower |15 |1  
+2.2 | Get ready to go out - Get dressed  | 5 | 2.1 
+2.3 | Get ready to go out - Pack all the belongings | 5| 2.1,2.2
+3.1 | Breakfast - walk to the breakfast place | 5| 2.1,2.2,2.3
+3.2 | Breakfast - Eating Breakfast | 20| 2.1,2.2,2.3,3.1
+4.1 | Going to Da Dao Cheng - transportation | 30| 2.1,2.2,2.3,3.1,3.2
+4.2 | Going to Da Dao Cheng - looking for a herb store | 60| 2.1,2.2,2.3,3.1,3.2,4.1
+4.3 | Going to Da Dao Cheng - Buying Herbs | 40| 2.1,2.2,2.3,3.1,3.2,4.1,4.2
+5 | Talking to Friends | 30 | 1
+6 | Listening to Podcast | 30 | 1
+7.1 | Temple Visit - Eating lunch next to the temple | 30 | 2.1,2.2,2.3,3.1,3.2
+7.2 | Temple Visit - Go to the temple to pray for good luck | 60 | 2.1,2.2,2.3,3.1,3.2,7.1
+8.1 | Eating Stinky Tofu at the night market - Going to the night market by MRT| 40 | 2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2
+8.2 | Eating Stinky Tofu at the night market - Eating| 80 | 2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1
+9.1 | Go home and watch movie - going home | 40 | 2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2
+9.2 | Go home and watch movie - Shower | 30 | 2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1
+9.3 | Go home and watch movie - watch movie| 120 | 2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1,9.2
+10  | Get ready for bed | 20 | 2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1,9.2,9.3
+
+2. For priority queue, I will want to finish the multitasking task as soon as possible, so I will decrease the priority score of the multitasking list so that I finish them ASAP. 
+
+**For the scheduler part:**
+1. I will create a condition under which, if the root of the binary tree can be multitasked, look for a task that a. can be multitasked with, b. does not have dependencies that have not been removed, and execute both task at the same time. 
+2. If the task being multitasked with cannot be finished during the time of the main task, decrease the remaining time required to take that task.
+**For the input "tasks":**
+1. I will add an elment into the dictionary called "multitasking", which takes True or False as the input and "allowed-Multitasks", which takes the id of the task that can be multitasked together.
+
+#################################################################
+# Q4: Write a scheduler with multi-tasking capability in Python #
+#################################################################
+
+import time as t
+start_time = t.time()
+
+
+#Create a list of tasks to put into the scheduler, each entry of the task would be a dictionary to store different information
+#Add in "multitasking" and "allowed-Multitasks" to each dictionary
+tasks = [{'task_id':1, 'description':' Wake up in at 9:30AM', 'task_duration':20,'multitasking':0,'allowed-multitask':[],'dependencies': [],'status': 'NOT_STARTED_YET'}, # Defining 10 tasks using Python Lists 
+         {'task_id':2.1, 'description':'Get ready to go out - Shower', 'task_duration':15, 'multitasking':0,'allowed-multitask':[],'dependencies':[1],'status': 'NOT_STARTED_YET'},
+         {'task_id':2.2,'description': 'Get ready to go out - Get dressed','task_duration':5, 'multitasking':1,'allowed-multitask':[6],'dependencies':[1,2.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':2.3,'description': 'Get ready to go out - Pack all the belongings','task_duration':5,'multitasking':1,'allowed-multitask':[6],'dependencies':[1,2.1,2.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':3.1,'description': 'Breakfast - walk to the breakfast place','task_duration':5,'multitasking':1,'allowed-multitask':[5,6],'dependencies':[1,2.1,2.2,2.3],'status': 'NOT_STARTED_YET'},
+         {'task_id':3.2,'description': 'Breakfast - Eating Breakfast','task_duration':20,'multitasking':1,'allowed-multitask':[5,6],'dependencies':[1,2.1,2.2,2.3,3.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':4.1,'description': 'Going to Da Dao Cheng - transportation ','task_duration':30,'multitasking':1,'allowed-multitask':[5,6],'dependencies':[1,2.1,2.2,2.3,3.1,3.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':4.2,'description': 'Going to Da Dao Cheng - looking for a herb store','task_duration':60,'multitasking':1,'allowed-multitask':[5],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':4.3,'description': 'Going to Da Dao Cheng - Buying Herbs','task_duration':40,'multitasking':0,'allowed-multitask':[],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':5,'description': 'Talking to Friends','task_duration':60,'multitasking':1,'allowed-multitask':[3.1,3.2,4.1,4.2,7.1,8.1],'dependencies':[1,2.1,2.2,2.3],'status': 'NOT_STARTED_YET'},
+         {'task_id':6,'description': 'Listening to Podcast','task_duration':30,'multitasking':1,'allowed-multitask':[2.2,2.3,3.1,3.2,4.1,8.1],'dependencies':[1,2.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':7.1,'description': 'Temple Visit - Eating food next to the temple ','task_duration':30,'multitasking':1,'allowed-multitask':[5],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3],'status': 'NOT_STARTED_YET'},
+         {'task_id':7.2, 'description':'Temple Visit - Go to the temple to pray for good luck','task_duration':60,'multitasking':0,'allowed-multitask':[],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,7.1,4.1,4.2,4.3],'status': 'NOT_STARTED_YET'},
+         {'task_id':8.1, 'description':'Eating Stinky Tofu at the night market - Going to the night market by MRT','task_duration':40,'multitasking':1,'allowed-multitask':[5],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':8.2, 'description':'Eating Stinky Tofu at the night market - Eatin','task_duration':80,'multitasking':1,'allowed-multitask':[5],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':9.1, 'description':'Go home and watch movie - going home','task_duration':40,'multitasking':1,'allowed-multitask':[5,6],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':9.2, 'description':'Go home and watch movie - Shower ','task_duration':30,'multitasking':0,'allowed-multitask':[],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1],'status': 'NOT_STARTED_YET'},
+         {'task_id':9.3, 'description':'Go home and watch movie - watch movie ','task_duration':120,'multitasking':0,'allowed-multitask':[],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1,9.2],'status': 'NOT_STARTED_YET'},
+         {'task_id':10, 'description':'Get ready for bed','task_duration':20,'multitasking':0,'allowed-multitask':[],'dependencies':[1,2.1,2.2,2.3,3.1,3.2,4.1,4.2,4.3,7.1,7.2,8.1,8.2,9.1,9.2,9.3],'status': 'NOT_STARTED_YET'},
+        ]
+
+#Add on the the priority score so that we can build a heap
+for task in tasks:
+    #if a task has more dependencies, then we assign a higher score, which would be de-prioritized.
+    #Here we are creating another element in the dictionary called dependency_priority to determine the score
+    task['dependency_priority'] = len(task['dependencies']) 
+    
+    #Assign a multitasking score because we want the multitasking tasks early in the heap list
+    #Here we are creating another element in the dictionary called multitasking_priority to determine the score
+    if task['multitasking'] == 1 :
+        task['multitasking_priority'] = -1
+    else: 
+        task['multitasking_priority'] = 0
+    
+    #The priority score will be determined by the dependency_priority score and the multitasking_priority
+    task['priority_score'] = task['dependency_priority'] + task['multitasking_priority']
+
+
+build_min_heap(tasks) #heapify my list of tasks
+
+c_time= 570 #time starts at 9:30 AM
+
+#################################
+#######Scheduler-Multitask Version Starts!#########
+#################################
+
+while len(tasks) > 0:    
+    #iterate on the following code to obtain the root of the min-heap so long as there is element in the heap/list
+    build_min_heap(tasks)
+    
+    #remove the task from other tasks' 'dependencies' once it is completed
+    for task in tasks: 
+        for dependency in task['dependencies']: 
+            if dependency == tasks[0]['task_id']:
+                task['dependencies'].remove(tasks[0]['task_id'])
+    
+    ########################################################
+    ##### Part A:  when the task CANNOT be multitasked #####
+    ########################################################
+
+    if tasks[0]['multitasking']==0: #if the task cannot be multitasked, conitnue with the basic version 
+        print('Simple Scheduler at time {}, executing task {}; remaining time to complete {}min'.format(integer_to_hour(c_time),tasks[0]['task_id'],tasks[0]['task_duration']))
+        #update and print the first task with its corresponding time
+        c_time += tasks[0]['task_duration'] #updated ending time in minutes
+        print('✅ Completed Task "{}" at {}'.format(tasks[0]['description'],integer_to_hour(c_time)))
+        print('---------------------------------------------------------------------------------------------')
+        del tasks[0]
+        
+        continue
+        
+    #####################################################
+    ##### Part B:  when the task CAN be multitasked #####
+    #####################################################
+    
+    elif tasks[0]['multitasking']==1:
+        potential = [] #this one stores the potential multitasks
+        
+        #Go through each element in the list, check whether the 
+        #"allowed-multitask" in each element includes the main task id, 
+        #if so, add it to the list where we could choose one task from 
+        
+        for task in tasks: 
+            for multitasks in task['allowed-multitask']:
+                if multitasks == tasks[0]['task_id']:
+                    if task['dependencies'] == []:
+                        potential.append(task)
+       
+    
+        #As we want to choose one task to multitask at the same time,
+        #We would biuld a min heap among the potential multi-task candidates
+        
+        build_min_heap(potential)
+        
+        ############################################################
+        ##### Part B-1:  when the task CAN be multitasked ##########
+        ##### BUT not other tasks can be multitasked ###############
+        ############################################################
+     
+        if len(potential)==0:
+            
+            ##if the task cannot be multitasked, conitnue with the basic version 
+            
+            print('Simple Scheduler at time {}, executing task {}; remaining time to complete {}min'.format(integer_to_hour(c_time),tasks[0]['task_id'],tasks[0]['task_duration']))
+            #update and print the first task with its corresponding time
+            c_time += tasks[0]['task_duration'] #updated ending time in minutes
+            print('✅ Completed Task "{}" at {}'.format(tasks[0]['description'],integer_to_hour(c_time)))
+            print('---------------------------------------------------------------------------------------------')
+            del tasks[0]
+            
+            continue
+            
+        #############################################################
+        ##### Part B-2:  when the task CAN be multitasked ###########
+        ##### And there are other tasks that can be multitasked #####
+        #############################################################
+        
+        if len(potential)>0:
+
+            ####################################################
+            ###### Part B-2-i ##################################
+            ###### if the multi-tasks can be finished before/###
+            ######at the same time as the main task is finished#
+            ####################################################
+            
+            
+            if potential[0]['task_duration'] < tasks[0]['task_duration']:
+
+                print('Simple Scheduler at time {}, executing task {}; multi-tasking 🙌 with {}; remaining time to complete {}min'.format(integer_to_hour(c_time),tasks[0]['task_id'],potential[0]['task_id'],tasks[0]['task_duration']))
+
+                #The following 4 lines is intended to know what is the index number in the "tasks" 
+                #heap that we chose from the potential candidate of the heap
+                i = 0 
+                for indicator in range(len(tasks)):
+                    if tasks[indicator]['task_id'] == potential[0]['task_id']:
+                        i = indicator
+
+                #update and print the first task with its corresponding time
+                c_time += tasks[0]['task_duration'] #updated ending time in minutes
+                print('✅ Completed Task "{}" and ✅ Task "{}" at {}'.format(tasks[0]['description'],tasks[i]['description'],integer_to_hour(c_time)))
+                print ("this task CAN be finished")
+                print('---------------------------------------------------------------------------------------------')
+            
+                #remove the task from other tasks' 'dependencies' once it is completed
+                for task in tasks: 
+                    for dependency in task['dependencies']:
+                        if dependency == tasks[i]['task_id']:
+                            task['dependencies'].remove(tasks[i]['task_id'])
+            
+                #delete the root node and the mult-task from the heap 
+                del tasks[i]
+                del tasks[0]
+                
+                      
+                continue
+
+
+            ######################################################
+            ###### Part B-2-ii ###################################
+            ###### if the multi-task CANNOT be finished before/at#
+            ###### the same time as the main task is finished#####
+            ######################################################
+            
+            if potential[0]['task_duration'] > tasks[0]['task_duration']:
+
+                print('Simple Scheduler at time {}, executing task {}; multi-tasking 🙌 with {}; remaining time to complete {}min'.format(integer_to_hour(c_time),tasks[0]['task_id'],potential[0]['task_id'],tasks[0]['task_duration']))
+                
+                
+                #The following 4 lines is intended to know what is the index number in the "tasks" 
+                #heap that we chose from the potential candidate of the heap
+                i = 0
+                for indicator in range(len(tasks)):
+                    if tasks[indicator]['task_id'] == potential[0]['task_id']:
+                        i = indicator
+
+
+                #update and print the first task with its corresponding time
+                c_time += tasks[0]['task_duration'] #updated ending time in minutes
+
+                #update the remaining time for the task that could not be finished 
+                tasks[i]['task_duration'] = tasks[i]['task_duration'] - tasks[0]['task_duration']
+
+                print('✅ Completed Task "{}" at {}'.format(tasks[0]['description'],integer_to_hour(c_time)))
+                print ("this task cannot be finished")
+                print('---------------------------------------------------------------------------------------------')
+
+                #delete the root node from the heap
+                del tasks[0]
+                
+                continue
+
+print("Good Night. Hope you Sleep Tight!😴")
+print('---------------------------------------------------------------------------------------------')
+
+
+
+end_time = t.time()
+print("⏰ The running time of this scheduler is:",end_time - start_time)
